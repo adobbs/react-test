@@ -47,13 +47,22 @@ function Board(props) {
 function Game() {
     const [squares, setSquares] = useState(Array(9).fill(null));
     const [history, setHistory] = useState([squares]);
+    const [stepNumber, setStepNumber] = useState(0);
     const [xIsNext, setXIsNext] = useState(true);
 
-    console.log(history);
-
-    const current = history[history.length - 1];
-    console.log(current);
+    const current = history[stepNumber];
     const winner = calculateWinner(current);
+
+    const moves = history.map((step, move) => {
+        const desc = move ?
+          'Go to move #' + move :
+          'Go to game start';
+        return (
+          <li key={move}>
+            <button onClick={() => jumpTo(move)}>{desc}</button>
+          </li>
+        );
+    });
 
     let status;
     if (winner) {
@@ -63,8 +72,7 @@ function Game() {
     }
 
     function handleClick(i) {
-        const newHistory = history;
-        const newCurrent = newHistory[newHistory.length - 1];
+        const newHistory = history.slice(0, stepNumber + 1);
         const newSquares = squares.slice();
         if (calculateWinner(newSquares) || newSquares[i]) {
             return;
@@ -72,7 +80,13 @@ function Game() {
         newSquares[i] = xIsNext ? 'X' : 'O';
         setSquares(newSquares); 
         setHistory(newHistory.concat([newSquares]));
+        setStepNumber(newHistory.length);
         setXIsNext(!xIsNext);
+    }
+
+    function jumpTo(step) {
+        setStepNumber(step);
+        setXIsNext((step % 2) === 0);
     }
 
     return (
@@ -85,7 +99,7 @@ function Game() {
         </div>
         <div className="game-info">
         <div>{status}</div>
-        <ol>{/* TODO */}</ol>
+        <ol>{moves}</ol>
         </div>
     </div>
     );
